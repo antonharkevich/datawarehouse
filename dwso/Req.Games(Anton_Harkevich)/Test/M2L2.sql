@@ -6,6 +6,8 @@ CREATE TABLE sa_tnx_sales_user.sa_tnx_sales
    company_id           NUMBER                         NOT NULL,
    customer_id          NUMBER                         NOT NULL,
    date_key             NUMBER                         NOT NULL,
+   sales_cat_id         NUMBER                         NOT NULL,
+   country_id           NUMBER                         NOT NULL,
    sales_amount         NUMBER                         NULL,
    sales_dollars        DECIMAL                        NULL,
    profit_margin        INT                            NULL,
@@ -20,25 +22,40 @@ INSERT INTO sa_tnx_sales_user.sa_tnx_sales(sales_id
                                            , company_id
                                            , customer_id
                                            , date_key
+                                           , sales_cat_id
+                                           , country_id
                                            , sales_amount
                                            , sales_dollars
                                            , profit_margin)
-SELECT ROWNUM + 1461*11
-       , ROUNd((dBMS_RANdOM.VALUE(1, 100000)),0)
-       , ROUNd((dBMS_RANdOM.VALUE(1, 100)),0)
-       , ROUNd((dBMS_RANdOM.VALUE(1, 100000)),0)
-       , to_number(to_char((DATE '2017-01-01' + LEVEL - 1), 'yyyymmdd')) 
-       , ROUNd((dBMS_RANdOM.VALUE(1, 1000000)),0)
-       , ROUNd((dBMS_RANdOM.VALUE(1, 100000000)),0)
-       , ROUNd((dBMS_RANdOM.VALUE(1, 100)),0)
+SELECT ROWNUM
+       , ROUNd((DBMS_RANdOM.VALUE(1, 50000)),0)
+       , ROUNd((DBMS_RANdOM.VALUE(1, 500000)),0)
+       , ROUNd((DBMS_RANdOM.VALUE(1, 5000000)),0)
+       , to_number(to_char((DATE '2017-01-01' + ROUNd((DBMS_RANdOM.VALUE(1, 1000)),0) - 1), 'yyyymmdd'))
+       , ROUNd((DBMS_RANdOM.VALUE(1, 4)),0)
+       , ROUNd((DBMS_RANdOM.VALUE(4, 900)),0)
+       , ROUNd((DBMS_RANdOM.VALUE(1, 1000000)),0)
+       , ROUNd((DBMS_RANdOM.VALUE(1, 100000000)),0)
+       , ROUNd((DBMS_RANdOM.VALUE(1, 100)),0)
   FROM dUAL
-CONNECT BY LEVEL <= DATE '2020-12-31' - DATE '2017-01-01' + 1;
+CONNECT BY LEVEL <= 100000;
 COMMIT;
 
 
 
+UPDATE sa_tnx_sales_user.sa_tnx_sales
+SET country_id = (SELECT country_id FROM sb_mbackup_user.sb_mbackup order by dbms_random.value fetch first 1 row only);
+COMMIT;
+
+UPDATE sa_tnx_sales_user.sa_tnx_sales
+SET sales_cat_id = 1
+WHERE SALES_AMOUNT between 1 and 300000;
 
 
+UPDATE sa_tnx_sales_user.sa_tnx_sales
+SET sales_cat_id = 4
+WHERE SALES_AMOUNT between 900001 and 1000000;
+COMMIT;
 
 
 VARIABLE n_all_data NUMBER;
@@ -54,9 +71,9 @@ BEGIN
 END;
 /
 
-SET AUTOTRAcE ON;
+SET AUTOTRACE ON;
 
-SELECT g.game_desc game
+SELECT /*+ gather_plan_statistics */ g.game_desc game
        , decode(GROUPING(c.company_desc),1,'ALL cOMPANIES',c.company_desc) company
        , decode(GROUPING(cus.customer_desc),1,'ALL CUSTOMERS',cus.customer_desc) customer
        , d.date_day_number_of_yr day
@@ -82,7 +99,7 @@ HAVING GROUPING_ID(c.company_desc,cus.customer_desc)+1 IN(:n_all_data,:n_custome
  
  SET AUTOTRAcE ON;
  
- SELECT g.game_desc game
+ SELECT /*+ gather_plan_statistics */ g.game_desc game
         , decode(GROUPING(C.company_desc),1,'ALL cOMPANIES',C.company_desc) company
         , decode(GROUPING(cus.customer_desc),1,'ALL CUSTOMERS',cus.customer_desc) customer
         , d.date_month_number_of_yr month
