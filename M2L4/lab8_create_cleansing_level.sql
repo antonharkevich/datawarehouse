@@ -6,7 +6,7 @@ DECLARE
     second_curs curs;
 BEGIN   
 
-DW_CL_USER.pkg_etl_dim_locations_dw_v2.load_locations;
+dw_cl_user.pkg_etl_dim_locations_dw_v2.load_locations;
      
 END;
 
