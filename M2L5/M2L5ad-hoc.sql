@@ -2,6 +2,7 @@ VARIABLE n_all_data NUMBER;
 VARIABLE n_customer NUMBER;
 VARIABLE n_company NUMBER;
 VARIABLE n_summary NUMBER;
+
 BEGIN
  -- set values to 0 to disable
  :n_all_data := 0; -- 1 to enable
@@ -10,8 +11,6 @@ BEGIN
  :n_summary  := 4; -- 4 to enable
 END;
 /
-
-
 
  SELECT /*+ gather_plan_statistics */
           g.game_desc game
@@ -46,8 +45,6 @@ END;
   
   
 
-
-
 create or replace view dw_cl_user.mmmain as 
 SELECT
         s.sales_id  id
@@ -58,7 +55,7 @@ SELECT
         , d.month_number_of_yr month
         , gen.sales_cat_desc category_of_success
         , S.fct_sales_amount sales_amount
-   FROM ts_dw_data_user.dw_sales s
+   FROM   ts_dw_data_user.dw_sales s
         , ts_dw_data_user.dw_date d
         , ts_dw_data_user.dw_companies c
         , ts_dw_data_user.dw_customers cus
@@ -69,23 +66,23 @@ SELECT
     AND s.company_id = c.company_id 
     AND s.game_surr_id = g.game_surr_id 
     AND s.customer_id = cus.customer_id 
-    AND d.year_id IN (2019) 
+    AND d.year_id IN (2018) 
     AND d.month_number_of_yr BETWEEN 1 AND 13
     AND s.country_id = countries.country_id
     AND s.sales_cat_id = gen.sales_cat_id;
-    
-    
-select *
- from dw_cl_user.mmmain
- group by  month, company, customer, country, category_of_success
- model
-dimension by (sum(id) as id)
- measures (company
- , sum(sales_amount) sales_amount
- , category_of_success
- , customer
- , country
- , month
- ,0 as income
- )
- rules (income[any] = sales_amount[cv()]);
+
+SET AUTOTRACE ON;
+--set timing on;
+   SELECT /*+ gather_plan_statistics */ *
+     FROM dw_cl_user.mmmain
+    GROUP BY  month, company, customer, country, category_of_success
+    MODEL
+DIMENSION BY (SUM(id) AS ID)
+ MEASURES (company
+           , SUM(sales_amount) sales_amount
+           , category_of_success
+           , customer
+           , country
+           , MONTH
+           ,0 AS income)
+    RULES (income[ANY] = sales_amount[cv()]);
