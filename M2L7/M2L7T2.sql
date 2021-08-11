@@ -1,5 +1,5 @@
-CREATE MATERIALIZED VIEW ts_dw_data_user.sales_storage_report 
-BUILD IMMEDIATE
+ CREATE MATERIALIZED VIEW ts_dw_data_user.sales_storage_report 
+  BUILD IMMEDIATE
 REFRESH ON COMMIT AS SELECT
         s.sales_id  id
         ,g.game_desc game
@@ -16,19 +16,22 @@ REFRESH ON COMMIT AS SELECT
         , ts_dw_data_user.dw_games_scd g
         , ts_dw_data_user.dw_geo_locations countries
         , ts_dw_data_user.dw_gen_periods gen
-  WHERE s.date_id = d.date_id 
-    AND s.company_id = c.company_id 
+  WHERE s.date_id      = d.date_id 
+    AND s.company_id   = c.company_id 
     AND s.game_surr_id = g.game_surr_id 
-    AND s.customer_id = cus.customer_id 
+    AND s.customer_id  = cus.customer_id 
     AND d.year_id IN (2019) 
     AND d.month_number_of_yr BETWEEN 1 AND 13
-    AND s.country_id = countries.country_id
+    AND s.country_id   = countries.country_id
     AND s.sales_cat_id = gen.sales_cat_id;
 
-select * from ts_dw_data_user.sales_storage_report;
+SELECT * FROM ts_dw_data_user.sales_storage_report;
 
 
-update ts_dw_data_user.dw_sales 
-set sales_cat_id = 1
-where game_surr_id = 16496 and company_id = 271481 and fct_sales_amount = 33894 and customer_id = 3502573; 
-commit;
+UPDATE ts_dw_data_user.dw_sales 
+   SET sales_cat_id = 1
+ WHERE game_surr_id = 16496 
+   AND company_id = 271481 
+   AND fct_sales_amount = 33894 
+   AND customer_id = 3502573; 
+COMMIT;

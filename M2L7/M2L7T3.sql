@@ -1,7 +1,9 @@
-CREATE MATERIALIZED VIEW ts_dw_data_user.sales_storage_report_dtm 
-BUILD IMMEDIATE
-REFRESH FORCE ON DEMAND START WITH SYSDATE NEXT SYSDATE + (1/720)
-AS SELECT
+
+
+ CREATE MATERIALIZED VIEW ts_dw_data_user.sales_storage_report_dtm 
+  BUILD IMMEDIATE
+REFRESH FORCE ON DEMAND START WITH SYSDATE NEXT SYSDATE + (1/720) AS 
+ SELECT
         s.sales_id  id
         ,g.game_desc game
         , countries.country_desc country
@@ -31,9 +33,9 @@ SELECT * FROM ts_dw_data_user.sales_storage_report_dtm;
 
 
 UPDATE ts_dw_data_user.dw_sales 
-SET sales_cat_id = 3
-WHERE game_surr_id = 16496 AND company_id = 271481 AND fct_sales_amount = 33894 AND customer_id = 3502573; 
+   SET sales_cat_id = 3
+ WHERE game_surr_id = 16496 
+   AND company_id = 271481 
+   AND fct_sales_amount = 33894 
+   AND customer_id = 3502573; 
 COMMIT;
-
-
-select value from v$parameter where name = 'background_dump_dest';
